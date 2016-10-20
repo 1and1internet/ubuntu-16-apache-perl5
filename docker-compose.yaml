@@ -1,0 +1,17 @@
+version: '2'
+services:
+  ubuntu-16-apache-perl5:
+    hostname: apache-perl
+    container_name: apache-perl
+#    volumes:
+#        - /path/to/your/local/ssl/cert/:/path/to/openshift/secret
+    user: "1000000"
+#    user: 'root'
+    build: .
+    image: perl5
+    ports:
+      - "8080:8080"
+#      - "8443:8443"
+#    environment:
+#      - SSL_KEY=/path/to/openshift/secret/key.key
+#      - SSL_CERT=/path/to/openshift/secret/cert.crt

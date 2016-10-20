@@ -1,0 +1,12 @@
+#!/bin/bash
+for DIR in `ls /usr/src`
+do
+	# If there is content, do not overwrite
+	[ "$(ls -A /var/www/$DIR/)" ] || rsync -roglv /usr/src/$DIR/ /var/www/$DIR/
+done
+
+if [ -e "/var/www/test_scripts/index.html" ];
+then
+  rm -rf /var/www/test_scripts
+fi
+

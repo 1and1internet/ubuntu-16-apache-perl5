@@ -1,0 +1,96 @@
+#!/usr/bin/perl
+#
+use strict;
+$|=1;
+
+# To differentiate build/install logs per host ( if horizontally scaled )
+my $hostname = `hostname`;
+chomp($hostname);
+$hostname =~ s/[^a-zA-Z0-9\-\_\.]//g; 
+
+my $cpan = "/var/www/cpan/";
+my $source = "${cpan}/modules.conf";
+
+my $blog = "${cpan}/autobuild.log.$hostname";
+my $ilog = "${cpan}/autoinstall.log.$hostname";
+
+my $lock = "${cpan}/cpan.lock";
+
+if(-e $lock) 
+{
+	print "Aborting due to lockfile presence\n";
+        exit(0);
+}
+
+open(FH, "> $lock") or die "Cannot open lockfile\n";
+print FH localtime()."\n";
+close(FH);
+
+foreach($blog, $ilog)
+{
+	(-e $_) and system("rm $_");
+}
+
+if(-e $source)
+{
+  my $mods;
+  logme("Found '$source'");
+  (-T $source) or die "'$source' is not a text file\n";
+  open(FH, "$source") or die "Cannot open '$source' for reading\n";
+  while(<FH>)
+  {
+    /^\s*#/ and next;
+    s/[^\w:\-]//g;
+    /^\-/ and die "Attempt to pass flag to cpanm via module name '$_'\n";
+    while(/\.\./) { s/\.\.//g; }
+    /[\w+]/ or next;
+    logme("Checking $_");
+    $mods++;
+    install($_);
+  }
+  logme("Finished parsing '$source'");
+  if($mods)
+  {
+    logme("$mods modules found");
+    open(FH, "< $blog");
+    while(<FH>)
+    {
+	chomp();
+	/(Successfully installed|is up to date)/ or next;
+	logme("#  $_");
+    }
+    close(FH);
+  }
+  logme("Finishing up at ".localtime());
+}
+
+system("rm $lock");
+
+sub logme
+{
+  my $arg = shift;
+  open(LOG, ">> $ilog");
+  print LOG "[".localtime()."] $arg\n";
+  close(LOG);
+}
+
+sub install
+{
+  my $module = shift;
+  my $cmd;
+  eval {
+    local $SIG{ALRM} = sub { die "alarm\n" }; 
+    alarm 600;
+    `echo "####################################################################" >> $blog`;
+    `date >> $blog`;
+    $cmd = `export PERL_CPANM_HOME='$cpan'; cpanm $module --local-lib /var/www/cpan/perl5/ --self-contained --verbose --notest >> $blog 2>&1`;
+    alarm 0;
+  };
+  if ($@) {
+    return "Caught sigalarm\n";
+  }
+  else
+  {
+    return $cmd;
+  }
+}
