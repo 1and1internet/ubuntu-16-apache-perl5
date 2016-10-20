@@ -1,5 +1,7 @@
 # docker-ubuntu-16-apache-perl5 
 
+The following should be a copy of files/usr/src/docs/README.md
+
 # perl5 appliance
 ---
 ## /html
@@ -17,7 +19,7 @@
   A standard cgi container. All scripts to be invoked should have the executable bit set
 
 ## /perl
-  A container for perl scripts running the Apache::Registry perl accellerator
+  A container for perl scripts running the Apache::Registry perl accelerator
   
   [Further details here] (http://perl.apache.org/docs/2.0/api/ModPerl/Registry.html)
 
