@@ -1,5 +1,6 @@
 FROM 1and1internet/ubuntu-16-apache:latest
 MAINTAINER christopher.james@1and1.co.uk
+COPY files /
 ARG DEBIAN_FRONTEND=noninteractive
 RUN \
   apt-get -qq -y clean && \
@@ -14,6 +15,5 @@ RUN \
                 /var/www && \
   apt-get -qq -y clean && \
   rm -rf /var/lib/apt/lists/*
-COPY files /
 EXPOSE 8080
 #USER 27
