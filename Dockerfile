@@ -9,6 +9,9 @@ RUN \
     libexpat1-dev libgdbm-dev libgd-dev libgmp3-dev libxslt1-dev \ 
     libsnmp-perl libdbd-pg-perl libdbd-pgsql libmysqlclient-dev libdb-dev libssl-dev && \
   /usr/sbin/a2enmod cgid && \
+  chmod -R 777 /var/log/apache2 /var/lock/apache2 /var/run/apache2 \
+                /etc/apache2/sites-* /etc/apache2/mods-* /etc/apache2/conf-* \
+                /var/www && \
   apt-get -qq -y clean && \
   rm -rf /var/lib/apt/lists/*
 COPY files /
